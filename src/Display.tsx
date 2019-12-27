@@ -11,7 +11,8 @@ import {
   Card,
   CardHeader,
   CardBody,
-  Title
+  Title,
+  GridItem
 } from "@patternfly/react-core";
 import mapboxgl from "mapbox-gl";
 import marker from "./icons/marker-red.png";
@@ -109,31 +110,20 @@ const ShelterDetail: React.FC<ShelterDetailProps> = props => {
   return <FlexItem>{shelterName}</FlexItem>;
 };
 
-interface ShelterDetailProps {
-  id: string;
-}
-const ShelterDetail: React.FC<ShelterDetailProps> = props => {
-  const [shelterName, setShelterName] = useState("");
-
-  fetch(process.env.REACT_APP_BACKEND_URL + `/find/shelter/${props.id}`)
-    .then(response => response.json())
-    .then(jsonData => {
-      setShelterName(jsonData.map.shelter.map.name);
-    });
-  return (
-    <>
-      <GridItem span={3}>Designated Shelter: </GridItem>
-      <GridItem span={9}>{shelterName}</GridItem>
-    </>
-  );
-};
 
 interface VictimDetailProps {
   data: any;
 }
 
+const status = {
+  "assigned": "ASSIGNED",
+  "reported": "REPORTED",
+  "rescued": "RESCUED"
+}
+
 const VictimDetail: React.FC<VictimDetailProps> = props => {
   const [address, setAddress] = useState("");
+  const [neighbourAddress, setNeighbourAddress] = useState("");
   const host = `https://api.mapbox.com/geocoding/v5/mapbox.places/${props.data.lon},${props.data.lat}.json?`;
   fetch(
     host +
@@ -144,7 +134,14 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
     .then(response => response.json())
     .then(jsonData => {
       if (jsonData.features.length) {
+        let neighbouringLocations = [];
+        for (let i = 1; i < 2; i++) {
+          neighbouringLocations.push(jsonData.features[i].place_name);
+        }
+        // Setting the Victim's locations
         setAddress(jsonData.features[0].place_name);
+
+        setNeighbourAddress(neighbouringLocations.toString());
       }
     });
   return (
@@ -171,22 +168,40 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
                 <FlexItem>Phone:</FlexItem>
                 <FlexItem>Needs First Aid:</FlexItem>
                 <FlexItem>Location:</FlexItem>
-                {props.data.status !== "REPORTED" && (
+                {props.data.status === status.reported && (
+                  <FlexItem>Neighbouring Location:</FlexItem>
+                )}
+                {props.data.status === status.assigned && (
+                  <FlexItem>Neighbouring Location:</FlexItem>
+                )}
+
+                {props.data.status !== status.reported && (
                   <FlexItem>Shelter:</FlexItem>
                 )}
                 <FlexItem>Timestamp:</FlexItem>
               </Flex>
               <Flex breakpointMods={[{ modifier: FlexModifiers.column }]}>
                 <FlexItem>
-                  {props.data.status === "RESCUED"
+                  {props.data.status === status.rescued
                     ? "RESCUED, victim is at shelter"
                     : props.data.status}
                 </FlexItem>
                 <FlexItem>{props.data.numberOfPeople}</FlexItem>
                 <FlexItem>{props.data.victimPhoneNumber}</FlexItem>
-                <FlexItem>{String(props.data.medicalNeeded)}</FlexItem>
+                {props.data.medicalNeeded && (
+                  <FlexItem>Required.</FlexItem>
+                )}
+                {!props.data.medicalNeeded && (
+                  <FlexItem>Not Required.</FlexItem>
+                )}
                 <FlexItem>{address}</FlexItem>
-                {props.data.status !== "REPORTED" && (
+                {props.data.status === status.assigned && (
+                  <FlexItem>{neighbourAddress}</FlexItem>
+                )}
+                {props.data.status === status.reported && (
+                  <FlexItem>{neighbourAddress}</FlexItem>
+                )}
+                {props.data.status !== status.reported && (
                   <ShelterDetail id={props.data.id}>Shelter:</ShelterDetail>
                 )}
                 <FlexItem>
