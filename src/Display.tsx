@@ -110,20 +110,23 @@ const ShelterDetail: React.FC<ShelterDetailProps> = props => {
   return <FlexItem>{shelterName}</FlexItem>;
 };
 
-
 interface VictimDetailProps {
   data: any;
 }
 
 const status = {
-  "assigned": "ASSIGNED",
-  "reported": "REPORTED",
-  "rescued": "RESCUED"
-}
+  assigned: "ASSIGNED",
+  reported: "REPORTED",
+  rescued: "RESCUED"
+};
 
 const VictimDetail: React.FC<VictimDetailProps> = props => {
   const [address, setAddress] = useState("");
   const [neighbourAddress, setNeighbourAddress] = useState("");
+
+
+
+  console.log("longitude ::" + props.data.lon + "latitude: ::" + props.data.lat)
   const host = `https://api.mapbox.com/geocoding/v5/mapbox.places/${props.data.lon},${props.data.lat}.json?`;
   fetch(
     host +
@@ -135,10 +138,16 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
     .then(jsonData => {
       if (jsonData.features.length) {
         let neighbouringLocations = [];
-        for (let i = 1; i < 2; i++) {
+
+        // To show multiple neighbor location
+        /*for (let i = 1; i < jsonData.features.length; i++) {
+          // Setting the Victim's locations
           neighbouringLocations.push(jsonData.features[i].place_name);
-        }
-        // Setting the Victim's locations
+        }*/
+
+        // To show a random nearby location to Victim's location.
+        neighbouringLocations.push(jsonData.features[1].place_name);
+        // Setting the Victim's location
         setAddress(jsonData.features[0].place_name);
 
         setNeighbourAddress(neighbouringLocations.toString());
@@ -168,16 +177,13 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
                 <FlexItem>Phone:</FlexItem>
                 <FlexItem>Needs First Aid:</FlexItem>
                 <FlexItem>Location:</FlexItem>
-                {props.data.status === status.reported && (
-                  <FlexItem>Neighbouring Location:</FlexItem>
-                )}
-                {props.data.status === status.assigned && (
-                  <FlexItem>Neighbouring Location:</FlexItem>
-                )}
-
-                {props.data.status !== status.reported && (
+                {props.data.status == status.reported ||
+                props.data.status === status.assigned ? (
+                  <FlexItem>Neighboring Location:</FlexItem>
+                ) : null}
+                {props.data.status !== status.reported ? (
                   <FlexItem>Shelter:</FlexItem>
-                )}
+                ) : null}
                 <FlexItem>Timestamp:</FlexItem>
               </Flex>
               <Flex breakpointMods={[{ modifier: FlexModifiers.column }]}>
@@ -188,22 +194,21 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
                 </FlexItem>
                 <FlexItem>{props.data.numberOfPeople}</FlexItem>
                 <FlexItem>{props.data.victimPhoneNumber}</FlexItem>
-                {props.data.medicalNeeded && (
+                {props.data.medicalNeeded ? (
                   <FlexItem>Required.</FlexItem>
-                )}
-                {!props.data.medicalNeeded && (
+                ) : null}
+                {!props.data.medicalNeeded ? (
                   <FlexItem>Not Required.</FlexItem>
-                )}
+                ) : null}
                 <FlexItem>{address}</FlexItem>
-                {props.data.status === status.assigned && (
+                {props.data.status === status.assigned ||
+                props.data.status === status.reported ? (
                   <FlexItem>{neighbourAddress}</FlexItem>
-                )}
-                {props.data.status === status.reported && (
-                  <FlexItem>{neighbourAddress}</FlexItem>
-                )}
-                {props.data.status !== status.reported && (
+                ) : null}
+
+                {props.data.status !== status.reported ? (
                   <ShelterDetail id={props.data.id}>Shelter:</ShelterDetail>
-                )}
+                ) : null}
                 <FlexItem>
                   {new Date(props.data.timeStamp).toDateString()}
                 </FlexItem>
@@ -218,18 +223,16 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
 
 interface DisplayListProps {
   isReady: boolean;
-  responseOk: boolean;
+  responseOk: any;
   dataArray: any;
 }
 
 const DisplayList: React.FC<DisplayListProps> = props => {
   let content: any;
-  if (props.dataArray.length === 0) {
-    if (props.isReady === false) {
-      content = <Alert variant="danger" isInline title="No data available" />;
-    } else {
-      content = null;
-    }
+  if (props.dataArray == undefined) {
+    content = "";
+  } else if (props.dataArray.length === 0) {
+    content = <Alert variant="danger" isInline title="No data available" />;
   } else {
     content = props.dataArray.map((val: any, key: number) => (
       <li key={key}>
@@ -237,15 +240,7 @@ const DisplayList: React.FC<DisplayListProps> = props => {
       </li>
     ));
   }
-  if (!props.responseOk) {
-    content = (
-      <Alert
-        variant="danger"
-        isInline
-        title="Error: Emergency Response services unreachable"
-      />
-    );
-  }
+  
   return (
     <PageSection>
       <ul>{content}</ul>

@@ -22,9 +22,9 @@ const Header = (
 );
 
 const App: React.FC = () => {
-  const [victimList, setVictimList] = useState([]);
+  const [victimList, setVictimList] = useState();
   const [isDataReady, setIsDataReady] = useState(true);
-  const [isResponseOk, setIsResponseOk] = useState(true);
+  const [isResponseOk, setIsResponseOk] = useState();
 
   const fetchDetails = async (data: SearchData) => {
     setIsDataReady(false);
@@ -32,20 +32,38 @@ const App: React.FC = () => {
       "sending request to: ",
       process.env.REACT_APP_BACKEND_URL + `/find/victim/byName/${data.name}`
     );
-    const response = await fetch(
+    fetch(
       process.env.REACT_APP_BACKEND_URL + `/find/victim/byName/${data.name}`
-    );
-
-    if (response.ok) {
-      const result = await response.json();
-      setVictimList(result.map.victims.list);
-      setIsResponseOk(true);
-    } else if (response.status === 503) {
-      setVictimList([]);
-      setIsResponseOk(false);
-      console.log("service unavailable.");
-    }
-    setIsDataReady(true);
+    )
+    .then((response) => {
+      if (response.ok) {
+        // Returning the JSON response if HTTP status response code is 200/201
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          // Returns JSON object if the response is of type JSON.
+          return response.json();
+        } else {
+          // Returns string if the response is of type string.
+          return response.text();
+        }
+      } else {
+        // Catch other HTTP status response.
+          setVictimList(null);
+          setIsDataReady(true);
+          // Setting the actual status to setIsResponseOk()
+          setIsResponseOk(response.status.toString());
+        throw new Error(response.status.toString());
+      }
+    })
+    .then(async (response) => {
+      console.log(response);
+        setVictimList(response.map.victims.list);
+        setIsResponseOk(true);
+      
+    })
+    .catch((error) => {
+      console.log(error)
+    });
   };
 
   return (
