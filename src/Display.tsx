@@ -132,8 +132,17 @@ interface VictimDetailProps {
   data: any;
 }
 
+const status = {
+  assigned: "ASSIGNED",
+  reported: "REPORTED",
+  rescued: "RESCUED"
+};
+
 const VictimDetail: React.FC<VictimDetailProps> = props => {
   const [address, setAddress] = useState("");
+  const [neighbourAddress, setNeighbourAddress] = useState("");
+
+  console.log("longitude ::" + props.data.lon + "latitude: ::" + props.data.lat)
   const host = `https://api.mapbox.com/geocoding/v5/mapbox.places/${props.data.lon},${props.data.lat}.json?`;
   fetch(
     host +
@@ -144,7 +153,20 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
     .then(response => response.json())
     .then(jsonData => {
       if (jsonData.features.length) {
+        let neighbouringLocations = [];
+
+        // To show multiple neighbor location
+        /*for (let i = 1; i < jsonData.features.length; i++) {
+          // Setting the Victim's locations
+          neighbouringLocations.push(jsonData.features[i].place_name);
+        }*/
+
+        // To show a random nearby location to Victim's location.
+        neighbouringLocations.push(jsonData.features[1].place_name);
+        // Setting the Victim's location
         setAddress(jsonData.features[0].place_name);
+
+        setNeighbourAddress(neighbouringLocations.toString());
       }
     });
   return (
@@ -171,24 +193,38 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
                 <FlexItem>Phone:</FlexItem>
                 <FlexItem>Needs First Aid:</FlexItem>
                 <FlexItem>Location:</FlexItem>
-                {props.data.status !== "REPORTED" && (
+                {props.data.status == status.reported ||
+                props.data.status === status.assigned ? (
+                  <FlexItem>Neighboring Location:</FlexItem>
+                ) : null}
+                {props.data.status !== status.reported ? (
                   <FlexItem>Shelter:</FlexItem>
-                )}
+                ) : null}
                 <FlexItem>Timestamp:</FlexItem>
               </Flex>
               <Flex breakpointMods={[{ modifier: FlexModifiers.column }]}>
                 <FlexItem>
-                  {props.data.status === "RESCUED"
+                  {props.data.status === status.rescued
                     ? "RESCUED, victim is at shelter"
                     : props.data.status}
                 </FlexItem>
                 <FlexItem>{props.data.numberOfPeople}</FlexItem>
                 <FlexItem>{props.data.victimPhoneNumber}</FlexItem>
-                <FlexItem>{String(props.data.medicalNeeded)}</FlexItem>
+                {props.data.medicalNeeded ? (
+                  <FlexItem>Required.</FlexItem>
+                ) : null}
+                {!props.data.medicalNeeded ? (
+                  <FlexItem>Not Required.</FlexItem>
+                ) : null}
                 <FlexItem>{address}</FlexItem>
-                {props.data.status !== "REPORTED" && (
+                {props.data.status === status.assigned ||
+                props.data.status === status.reported ? (
+                  <FlexItem>{neighbourAddress}</FlexItem>
+                ) : null}
+
+                {props.data.status !== status.reported ? (
                   <ShelterDetail id={props.data.id}>Shelter:</ShelterDetail>
-                )}
+                ) : null}
                 <FlexItem>
                   {new Date(props.data.timeStamp).toDateString()}
                 </FlexItem>
