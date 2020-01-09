@@ -123,9 +123,6 @@ const status = {
 const VictimDetail: React.FC<VictimDetailProps> = props => {
   const [address, setAddress] = useState("");
   const [neighbourAddress, setNeighbourAddress] = useState("");
-
-
-
   console.log("longitude ::" + props.data.lon + "latitude: ::" + props.data.lat)
   const host = `https://api.mapbox.com/geocoding/v5/mapbox.places/${props.data.lon},${props.data.lat}.json?`;
   fetch(
@@ -177,7 +174,7 @@ const VictimDetail: React.FC<VictimDetailProps> = props => {
                 <FlexItem>Phone:</FlexItem>
                 <FlexItem>Needs First Aid:</FlexItem>
                 <FlexItem>Location:</FlexItem>
-                {props.data.status == status.reported ||
+                {props.data.status === status.reported ||
                 props.data.status === status.assigned ? (
                   <FlexItem>Neighboring Location:</FlexItem>
                 ) : null}
@@ -229,7 +226,7 @@ interface DisplayListProps {
 
 const DisplayList: React.FC<DisplayListProps> = props => {
   let content: any;
-  if (props.dataArray == undefined) {
+  if (props.dataArray === undefined) {
     content = "";
   } else if (props.dataArray.length === 0) {
     content = <Alert variant="danger" isInline title="No data available" />;

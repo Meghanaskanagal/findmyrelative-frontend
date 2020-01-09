@@ -57,11 +57,24 @@ const App: React.FC = () => {
     })
     .then(async (response) => {
       console.log(response);
+      // To catch EmergencyResponseDemo service error.
+
+      if(response.message == "EmergencyResponseDemo service error message"){
+        setVictimList(null);
+        setIsDataReady(false);
+        setIsResponseOk("EmergencyResponseDemo service");
+      }else{
+        setIsDataReady(true);
         setVictimList(response.map.victims.list);
         setIsResponseOk(true);
-      
+      }      
     })
     .catch((error) => {
+      if(error.message == "NetworkError when attempting to fetch resource."){
+        setVictimList(null);
+        setIsDataReady(false);
+        setIsResponseOk("FindMyRelative service");
+      }
       console.log(error)
     });
   };
