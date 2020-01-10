@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BrowserRouter as Router, Route } from "react-router-dom";
 
 import "@patternfly/react-core/dist/styles/base.css";
 import { Page, PageHeader } from "@patternfly/react-core";
@@ -6,6 +7,8 @@ import { Page, PageHeader } from "@patternfly/react-core";
 import SearchData from "./types";
 import SearchForm from "./Search";
 import DisplayList from "./Display";
+
+import Homepage from "./Homepage";
 
 const logoProps = {
   href: "https://erdemo.io",
@@ -21,7 +24,7 @@ const Header = (
   />
 );
 
-const App: React.FC = () => {
+const OldApplication: React.FC = () => {
   const [victimList, setVictimList] = useState([]);
   const [isDataReady, setIsDataReady] = useState(true);
   const [isResponseOk, setIsResponseOk] = useState(true);
@@ -57,6 +60,15 @@ const App: React.FC = () => {
         dataArray={victimList}
       ></DisplayList>
     </Page>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <Router>
+      <Route path="/" component={OldApplication} />
+      <Route path="/newfindmyrelative" component={Homepage} />
+    </Router>
   );
 };
 
