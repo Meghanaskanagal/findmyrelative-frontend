@@ -1,0 +1,11 @@
+.form-style{
+    justify-content: center;
+    text-align: center;
+    padding: 1%;
+    background: whitesmoke;
+}
+
+.action-group-style{
+    justify-content: center !important;
+    display: inline-block;
+}
