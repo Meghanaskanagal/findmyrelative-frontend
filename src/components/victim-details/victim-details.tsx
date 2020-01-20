@@ -1,36 +1,39 @@
 import React from "react";
 import "@patternfly/react-core/dist/styles/base.css";
 import {
-  Page,
-  PageHeader,
   Card,
   CardHeader,
-  CardFooter,
   CardBody,
-  Alert,
-  PageSection,
   Split,
   SplitItem,
   Flex,
   FlexItem,
   FlexModifiers,
-  Title
-} from "@patternfly/react-core";
-import configureStore from "../../redux/store";
+} from '@patternfly/react-core';
 import { useSelector } from "react-redux";
+import ShelterDetail from "./shelter-details/shelter-details";
+
 
 const VictimDetail: React.FC = () => {
-  const storedState: any = useSelector(state => state);
-  let props = storedState.SearchReducer.name.map.victims.list;
+  let props = [];
+  const storedState: any = useSelector((state) => state);
+  if (Object.keys(storedState.SearchReducer.name).length === 0) {
+    props = [];
+  } else {
+    props = storedState.SearchReducer.name;
+  }
 
-  const logoProps = {
-    href: "https://erdemo.io",
-    target: "_blank"
+  let status = {
+    assigned: "ASSIGNED",
+    reported: "REPORTED",
+    rescued: "RESCUED"
   };
 
   return (
     <Card isHoverable>
-      <CardHeader>Victim's Details</CardHeader>
+      <CardHeader>
+        Victim's Details
+      </CardHeader>
       <CardBody>
         <Split gutter="md">
           <SplitItem>
@@ -41,23 +44,31 @@ const VictimDetail: React.FC = () => {
                 <FlexItem>Phone:</FlexItem>
                 <FlexItem>Needs First Aid:</FlexItem>
                 <FlexItem>Location:</FlexItem>
+                {props.status === status.reported ||
+                  props.status === status.assigned ? (
+                    <FlexItem>Neighboring Location:</FlexItem>
+                  ) : null}
+                {props.status !== status.reported ? (
+                  <FlexItem>Shelter:</FlexItem>
+                ) : null}
                 <FlexItem>Timestamp:</FlexItem>
               </Flex>
               <Flex breakpointMods={[{ modifier: FlexModifiers.column }]}>
                 <FlexItem>
-                  {props[0].map.status === "RESCUED"
+                  {props.status === "RESCUED"
                     ? "RESCUED, victim is at shelter"
-                    : props[0].map.status}
+                    : props.status}
                 </FlexItem>
-                <FlexItem>{props[0].map.numberOfPeople}</FlexItem>
-                <FlexItem>{props[0].map.victimPhoneNumber}</FlexItem>
+                <FlexItem>{props.numberOfPeople}</FlexItem>
+                <FlexItem>{props.victimPhoneNumber}</FlexItem>
+                <FlexItem>{String(props.medicalNeeded) ? "YES" : "NO"}</FlexItem>
+                <FlexItem>{props.features[0].place_name}</FlexItem>
+                <FlexItem>{props.features[1].place_name}</FlexItem>
+                {props.status !== status.reported ? (
+                  <ShelterDetail />
+                ) : null}
                 <FlexItem>
-                  {String(props[0].map.medicalNeeded) ? "YES" : "NO"}
-                </FlexItem>
-                <FlexItem>Address from map api</FlexItem>
-
-                <FlexItem>
-                  {new Date(props[0].map.timeStamp).toDateString()}
+                  {new Date(props.timeStamp).toDateString()}
                 </FlexItem>
               </Flex>
             </Flex>
@@ -66,6 +77,6 @@ const VictimDetail: React.FC = () => {
       </CardBody>
     </Card>
   );
-};
+}
 
 export default VictimDetail;
