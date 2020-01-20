@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 import "@patternfly/react-core/dist/styles/base.css";
 import { Page, PageHeader } from "@patternfly/react-core";
@@ -66,8 +66,10 @@ const OldApplication: React.FC = () => {
 const App: React.FC = () => {
   return (
     <Router>
-      <Route path="/" component={OldApplication} />
-      <Route path="/newfindmyrelative" component={Homepage} />
+      <Switch>
+        <Route path="/" component={OldApplication} exact />
+        <Route path="/newfindmyrelative" component={Homepage} />
+      </Switch>
     </Router>
   );
 };
