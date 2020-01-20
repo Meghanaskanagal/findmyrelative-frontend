@@ -1,13 +1,13 @@
 import React from "react";
 import "@patternfly/react-core/dist/styles/base.css";
 import {
-    Page,
-    PageHeader,
-    Card,
-    CardHeader,
-    CardFooter,
-    CardBody,
-    Alert,
+  Page,
+  PageHeader,
+  Card,
+  CardHeader,
+  CardFooter,
+  CardBody,
+  Alert,
   PageSection,
   Split,
   SplitItem,
@@ -15,25 +15,22 @@ import {
   FlexItem,
   FlexModifiers,
   Title
-} from '@patternfly/react-core';
+} from "@patternfly/react-core";
 import configureStore from "../../redux/store";
 import { useSelector } from "react-redux";
 
-
 const VictimDetail: React.FC = () => {
-    const storedState:any = useSelector((state) => state);
-    let props = storedState.SearchReducer.name.map.victims.list;
+  const storedState: any = useSelector(state => state);
+  let props = storedState.SearchReducer.name.map.victims.list;
 
-    const logoProps = {
-        href: "https://erdemo.io",
-        target: "_blank"
-    };
+  const logoProps = {
+    href: "https://erdemo.io",
+    target: "_blank"
+  };
 
-    return (
-        <Card isHoverable>
-      <CardHeader>
-            Victim's Details
-      </CardHeader>
+  return (
+    <Card isHoverable>
+      <CardHeader>Victim's Details</CardHeader>
       <CardBody>
         <Split gutter="md">
           <SplitItem>
@@ -54,9 +51,11 @@ const VictimDetail: React.FC = () => {
                 </FlexItem>
                 <FlexItem>{props[0].map.numberOfPeople}</FlexItem>
                 <FlexItem>{props[0].map.victimPhoneNumber}</FlexItem>
-                <FlexItem>{String(props[0].map.medicalNeeded) ? "YES": "NO"}</FlexItem>
+                <FlexItem>
+                  {String(props[0].map.medicalNeeded) ? "YES" : "NO"}
+                </FlexItem>
                 <FlexItem>Address from map api</FlexItem>
-                
+
                 <FlexItem>
                   {new Date(props[0].map.timeStamp).toDateString()}
                 </FlexItem>
@@ -66,7 +65,7 @@ const VictimDetail: React.FC = () => {
         </Split>
       </CardBody>
     </Card>
-    );
-}
+  );
+};
 
 export default VictimDetail;
