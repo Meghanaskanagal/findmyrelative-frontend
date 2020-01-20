@@ -1,56 +1,77 @@
 import React, { useState } from "react";
-import "@patternfly/react-core/dist/styles/base.css";
-import { Page, PageHeader, Flex, FlexItem } from "@patternfly/react-core";
-import Map from "./components/map/map";
-import Header from "./components/header/header";
-import Search from "./components/search/search"
-import VictimDetail from "./components/victim-details/victim-details";
-import configureStore from "./redux/store";
-import { useSelector } from "react-redux";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
+import "@patternfly/react-core/dist/styles/base.css";
+import { Page, PageHeader } from "@patternfly/react-core";
+
+import SearchData from "./types";
+import SearchForm from "./Search";
+import DisplayList from "./Display";
+
+import Homepage from "./Homepage";
+
+const logoProps = {
+  href: "https://erdemo.io",
+  target: "_blank"
+};
+
+const Header = (
+  <PageHeader
+    logo="Find My Relative"
+    logoProps={logoProps}
+    toolbar="Toolbar"
+    avatar=" | Avatar"
+  />
+);
+
+const OldApplication: React.FC = () => {
+  const [victimList, setVictimList] = useState([]);
+  const [isDataReady, setIsDataReady] = useState(true);
+  const [isResponseOk, setIsResponseOk] = useState(true);
+
+  const fetchDetails = async (data: SearchData) => {
+    setIsDataReady(false);
+    console.log(
+      "sending request to: ",
+      process.env.REACT_APP_BACKEND_URL + `/find/victim/byName/${data.name}`
+    );
+    const response = await fetch(
+      process.env.REACT_APP_BACKEND_URL + `/find/victim/byName/${data.name}`
+    );
+
+    if (response.ok) {
+      const result = await response.json();
+      setVictimList(result.map.victims.list);
+      setIsResponseOk(true);
+    } else if (response.status === 503) {
+      setVictimList([]);
+      setIsResponseOk(false);
+      console.log("service unavailable.");
+    }
+    setIsDataReady(true);
+  };
+
+  return (
+    <Page header={Header}>
+      <SearchForm onFormSubmit={fetchDetails}></SearchForm>
+      <DisplayList
+        responseOk={isResponseOk}
+        isReady={isDataReady}
+        dataArray={victimList}
+      ></DisplayList>
+    </Page>
+  );
+};
 
 const App: React.FC = () => {
-    // const [victimList, setVictimList] = useState();
-    let noDataFound: Boolean = false;
-    let initialDisplay: Boolean = true;
-
-    const storedState:any = useSelector((state) => state);
-
-    if(storedState.SearchReducer.name == "VICTIM_NAME"){
-        console.log(storedState.name);
-        initialDisplay = true;
-    }else if(storedState.SearchReducer.name.map.victims.list.length != 0){
-        noDataFound = true;
-        initialDisplay = false;
-
-    }else {
-        noDataFound = false;
-        initialDisplay = false;
-    }
-
-    return (
-        <div>
-            <Header />
-            <Search />
-            {
-    !initialDisplay ? 
-                noDataFound ? 
-				<Flex className="search-bar-center">
-						<FlexItem>
-							<Map />
-						</FlexItem>
-						<FlexItem>
-							<VictimDetail />
-						</FlexItem>
-				</Flex> : 
-				<Flex>
-                        {/* Exxecute the below code if the data is empty / For NO DATA response */}
-                        <div>No Data. Please check Victim's name and try again!</div>
-                    </Flex>
-            : null 
-}
-        </div>
-    );
+  return (
+    <Router>
+      <Switch>
+        <Route path="/" component={OldApplication} exact />
+        <Route path="/newfindmyrelative" component={Homepage} />
+      </Switch>
+    </Router>
+  );
 };
 
 export default App;
