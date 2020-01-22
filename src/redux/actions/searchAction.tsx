@@ -1,10 +1,9 @@
 let responseValue1: any = [];
 let responseValue2: any = [];
 let responseValue: any = [];
-
 export function searchAction(name: String) {
   //return the actual action to do
-  return function(dispatch: (arg0: { type: string; payload: any }) => void) {
+  return function(dispatch: (arg0: { type: string; payload: any }) => void) 
     fetch(process.env.REACT_APP_BACKEND_URL + "/find/victim/byName/" + name)
       .then(response => {
         if (response.ok) {
@@ -13,13 +12,8 @@ export function searchAction(name: String) {
           if (contentType && contentType.indexOf("application/json") !== -1) {
             // Returns JSON object if the response is of type JSON.
             return response.json();
-          } else {
-            // Returns string if the response is of type string.
-            return response.text();
-          }
-        } else {
-          // Catch other HTTP status response.
-
+              } else {
+            // Catch other HTTP status response.
           dispatch({
             type: "HTTP_STATUS_RESPONSE_ERROR",
             payload: response.status.toString()
@@ -60,6 +54,6 @@ export function searchAction(name: String) {
       })
       .catch(error => {
         console.log(error);
-      });
+      });        
   };
 }
