@@ -1,21 +1,20 @@
 import React from "react";
 import "@patternfly/react-core/dist/styles/base.css";
-import { Page, PageHeader } from "@patternfly/react-core";
+import { useSelector, useDispatch } from "react-redux";
+import { FlexItem } from "@patternfly/react-core";
+import { shelterAction } from "../../../redux/actions/shelterAction";
 
 const ShelterDetail: React.FC = () => {
-  const logoProps = {
-    href: "https://erdemo.io",
-    target: "_blank"
-  };
+  const storedState: any = useSelector(state => state);
+  let props = storedState.SearchReducer.name;
+  const dispatch = useDispatch();
 
-  return (
-    <PageHeader
-      logo="Find My Relative"
-      logoProps={logoProps}
-      toolbar="Toolbar"
-      avatar=" | Avatar"
-    />
-  );
+  // This is to stop dispatching once the name is retrived from API.
+  if (props.name === undefined) {
+    dispatch(shelterAction(props));
+  }
+
+  return <FlexItem>{props.name}</FlexItem>;
 };
 
 export default ShelterDetail;

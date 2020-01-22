@@ -8,21 +8,18 @@ import {
   Button,
   Flex,
   FlexItem,
-  FlexModifiers,
-  FlexBreakpoints
+  FlexModifiers
 } from "@patternfly/react-core";
 import "./search.css";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { searchAction } from "../../redux/actions/searchAction";
 
 const Search: React.FC = () => {
-  let isEmpty: Boolean = false;
   const [name, setName] = useState("");
 
   const handleNameChange = (value: string) => setName(value);
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
-    if (name == "") {
-      isEmpty = true;
+    if (name === "") {
       // Prevent page reload
       e.preventDefault();
     } else {

@@ -1,24 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "@patternfly/react-core/dist/styles/base.css";
-import { Card, CardHeader, CardBody, CardFooter } from "@patternfly/react-core";
-import { useDispatch, useSelector } from "react-redux";
+import { Card, CardHeader, CardBody } from "@patternfly/react-core";
+import { useSelector } from "react-redux";
 
 import mapboxgl from "mapbox-gl";
-import { mapAction } from "../../redux/actions/mapAction";
 import marker from "../../icons/marker-red.png";
 
 // import marker from "./icons/marker-red.png";
 // import shelter from "./icons/shelter.png";
 
 const Map: React.FC = () => {
-  debugger;
   const storedState: any = useSelector(state => state);
-  let props = storedState.SearchReducer.name.map.victims.list;
-  let longitude = props[0].map.lon;
-  let latitude = props[0].map.lat;
-
+  let props = storedState.SearchReducer.name;
+  let longitude = props.lon;
+  let latitude = props.lat;
   // const dispatch = useDispatch();
-  // dispatch(mapAction(latitude, longitude));
+  // dispatch(victimDetail(latitude, longitude));
 
   const mapPointLayer = (
     name: string,
@@ -53,10 +50,7 @@ const Map: React.FC = () => {
   };
 
   useEffect(() => {
-    let token =
-      "pk.eyJ1IjoibWVnaGFuYXNrYW5hZ2FsIiwiYSI6ImNrMXExdmU5ZjEyYWczY3FvZmw2dm9oamwifQ.qDuxo-hNK1XTwOGDRsvSTA";
-
-    mapboxgl.accessToken = token || "";
+    mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN || "";
     let map = new mapboxgl.Map({
       container: "map",
       style: "mapbox://styles/mapbox/streets-v11",
@@ -76,7 +70,7 @@ const Map: React.FC = () => {
     <Card isHoverable>
       <CardHeader>Victim's Location</CardHeader>
       <CardBody>
-        <div id={"map"} style={{ width: "500px", height: "400px" }}></div>
+        <div id={"map"} style={{ width: "400px", height: "400px" }}></div>
       </CardBody>
     </Card>
   );

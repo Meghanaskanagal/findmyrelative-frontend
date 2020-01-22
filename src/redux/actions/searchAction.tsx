@@ -1,7 +1,11 @@
+let responseValue1: any = [];
+let responseValue2: any = [];
+let responseValue: any = [];
+
 export function searchAction(name: String) {
   //return the actual action to do
   return function(dispatch: (arg0: { type: string; payload: any }) => void) {
-    fetch("http://localhost:8080/find/victim/byName/" + name)
+    fetch(process.env.REACT_APP_BACKEND_URL + "/find/victim/byName/" + name)
       .then(response => {
         if (response.ok) {
           // Returning the JSON response if HTTP status response code is 200/201
@@ -24,10 +28,35 @@ export function searchAction(name: String) {
         }
       })
       .then(async response => {
-        console.log(response);
-        //   setVictimList(response.map.victims.list);
-        //   setIsResponseOk(true);
-        dispatch({ type: "SUCCESS", payload: response });
+        if (response.map.victims.list.length === 0) {
+          responseValue1 = {};
+          responseValue2 = {};
+          responseValue = { ...responseValue1, ...responseValue2 };
+          dispatch({ type: "SUCCESS", payload: responseValue });
+        } else {
+          responseValue1 = response.map.victims.list[0].map;
+          const requestOptions = {
+            method: "GET",
+            headers: { "Content-Type": "application/json" }
+          };
+          let token = process.env.REACT_APP_MAPBOX_TOKEN;
+
+          let longitude = response.map.victims.list[0].map.lon;
+          let latitude = response.map.victims.list[0].map.lat;
+          let host = `https://api.mapbox.com/geocoding/v5/mapbox.places/${longitude},${latitude}.json?`;
+
+          const res = await fetch(
+            host +
+              new URLSearchParams({
+                access_token: token || ""
+              }),
+            requestOptions
+          );
+          const responseValue2 = await res.json();
+
+          responseValue = { ...responseValue1, ...responseValue2 };
+          dispatch({ type: "SUCCESS", payload: responseValue });
+        }
       })
       .catch(error => {
         console.log(error);
